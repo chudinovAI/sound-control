@@ -2,6 +2,8 @@
 
 A native per-app volume mixer for macOS. It uses Core Audio process taps instead of a virtual audio driver. Audio routing still needs further verification with real sound and system permission.
 
+![Sound Control menu with Discord and Safari audio controls](docs/screenshot.webp)
+
 ## Build and run
 
 macOS 14.2 or later and Xcode with Swift are required. Building requires an SDK with SwiftUI Liquid Glass support (Xcode 26 or later).

@@ -42,4 +42,9 @@ The panel build and launch have been verified on the current Mac; the separate g
 - README was corrected for the current filter; local build artifacts remain excluded from Git. Hosting the source code was approved by the user separately from publishing the finished application.
 - The audit noted potential accumulation of process-owner identifiers and quadratic listener reconciliation; their impact has not been measured, and safe cleanup requires checking lifecycles and routes.
 
+### Safari audio process presentation
+
+- A recognized `Safari Graphics and Media` WebKit process can be shown as `Safari Audio` with Safari's icon when one Safari path is available. This is a display hint only; it does not merge routes or establish process ownership. Multiple helpers may still appear separately, and settings for a PID-based group do not survive replacement of that process.
+- Unit tests cover the hint and ambiguous or unrelated hosts. A live model-discovery test passed while Safari audio was playing. The user confirmed the rebuilt panel shows `Safari Audio` with the Safari icon and provided the README screenshot; audible volume control and process replacement have not been checked.
+
 Actual capture requires system permission from the user. Publishing the finished application and installing a driver are out of scope.

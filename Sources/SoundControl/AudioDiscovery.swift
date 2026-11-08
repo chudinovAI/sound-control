@@ -104,12 +104,22 @@ enum AudioDiscovery {
                 let fallbackName = executableURL?.lastPathComponent
                     ?? (bundleID?.isEmpty == false ? bundleID : nil)
                     ?? "Process \(pid)"
-                let name = bundleName(bundle)
+                let safariURL: URL?
+                if appURL == nil, bundleID == "com.apple.WebKit.GPU", runningApp?.localizedName == "Safari Graphics and Media" {
+                    let candidates = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Safari")
+                        .filter { !$0.isTerminated }
+                        .compactMap(\.bundleURL)
+                    safariURL = safariPresentationURL(processName: runningApp?.localizedName, bundleID: bundleID, candidates: candidates)
+                } else {
+                    safariURL = nil
+                }
+                let name = safariURL.map { "\(bundleName(Bundle(url: $0)) ?? "Safari") Audio" }
+                    ?? bundleName(bundle)
                     ?? appURL?.deletingPathExtension().lastPathComponent
                     ?? runningApp?.localizedName
                     ?? fallbackName
 
-                groups[id, default: ApplicationGroup(name: name, processIDs: [], processInstances: [], bundleURL: appURL, canControl: start != nil, isRunningOutput: false)]
+                groups[id, default: ApplicationGroup(name: name, processIDs: [], processInstances: [], bundleURL: safariURL ?? appURL, canControl: start != nil, isRunningOutput: false)]
                     .processIDs.append(processObject)
                 if runningOutput != 0 { groups[id]?.isRunningOutput = true }
                 if let start {
@@ -128,6 +138,14 @@ enum AudioDiscovery {
             let comparison = $0.name.localizedStandardCompare($1.name)
             return comparison == .orderedSame ? $0.id < $1.id : comparison == .orderedAscending
         }
+    }
+
+    /// Uses Safari's name and icon as a presentation hint only. This does not
+    /// establish process ownership or change the process group used by a tap.
+    static func safariPresentationURL(processName: String?, bundleID: String?, candidates: [URL]) -> URL? {
+        guard processName == "Safari Graphics and Media", bundleID == "com.apple.WebKit.GPU" else { return nil }
+        let unique = Set(candidates.map { $0.resolvingSymlinksInPath().standardizedFileURL })
+        return unique.count == 1 ? unique.first : nil
     }
 
     /// Returns the output devices currently used by the given process objects.
