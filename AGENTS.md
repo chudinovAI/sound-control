@@ -1,27 +1,27 @@
 # Sound Control
 
-Нативный микшер приложений для macOS; цель и критерии — в SPEC.md.
+A native application mixer for macOS; the goal and criteria are in SPEC.md.
 
-## Команды
+## Commands
 
-- Сборка `.app`: `./scripts/build-app.sh`.
-- Запуск собранного приложения: `open 'build/Sound Control.app'`.
+- Build the `.app`: `./scripts/build-app.sh`.
+- Launch the built application: `open 'build/Sound Control.app'`.
 
-## Память проекта
+## Project memory
 
-- В начале работы прочитать SPEC.md, ARCHITECTURE.md и актуальный шаг PLAN.md.
-- PLAN.md — локальный источник статуса. ARCHITECTURE.md отражает фактические обязанности и важные контракты кода.
-- Не создавать GitHub-инфраструктуру, не публиковать приложение и не изменять разрешения без соответствующего поручения.
+- At the start of work, read SPEC.md, ARCHITECTURE.md, and the current step in PLAN.md.
+- PLAN.md is the local source of status. ARCHITECTURE.md reflects the actual responsibilities and important code contracts.
+- Do not create GitHub infrastructure, publish the application, or change permissions without a corresponding instruction.
 
-## Работа и ревью
+## Work and review
 
-- Ограничивать изменения задачей, сохранять пользовательские правки и удалять устаревший код после изменения контракта.
-- Реальные изменения поведения проверять через работающую точку входа; результаты и непроверенные сценарии сообщать отдельно.
-- Существенные или рискованные изменения проверяет независимый reviewer. При замечаниях: review0, fix1/review1, при необходимости fix2/review2; после второго неудачного ревью остановить затронутую работу и спросить пользователя.
-- Согласовывать существенные новые решения в опасных зонах и запрашивать необходимые разрешения в точке действия.
-- На каждой вехе проводить структурное ревью: сравнить обязанности, зависимости и контракты с прежней картой, оценить усложнение и дублирование, обновить ARCHITECTURE.md и представить выводы пользователю для приёмки.
+- Keep changes within the scope of the task, preserve user changes, and remove obsolete code after a contract changes.
+- Verify actual behavior changes through a working entry point; report results and unverified scenarios separately.
+- An independent reviewer checks substantial or risky changes. If there are findings: review0, fix1/review1, and, if necessary, fix2/review2; after the second unsuccessful review, stop the affected work and ask the user.
+- Agree on substantial new decisions in high-risk areas and request the necessary permissions at the point of action.
+- At each milestone, conduct a structural review: compare responsibilities, dependencies, and contracts with the previous map, assess added complexity and duplication, update ARCHITECTURE.md, and present the findings to the user for acceptance.
 
-## Опасные зоны
+## High-risk areas
 
-- `AudioEngine.swift`: стабильность аудиовывода и real-time обработка.
-- `AudioDiscovery.swift`: изменение системного устройства вывода.
+- `AudioEngine.swift`: audio output stability and real-time processing.
+- `AudioDiscovery.swift`: changing the system output device.

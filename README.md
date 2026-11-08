@@ -1,32 +1,32 @@
 # Sound Control
 
-Нативная панель микшера приложений для macOS. Использует Core Audio process taps вместо виртуального аудиодрайвера. Для полного подтверждения работы аудиомаршрутизации ещё необходимы проверки с реальным звуком и системным разрешением.
+A native per-app volume mixer for macOS. It uses Core Audio process taps instead of a virtual audio driver. Audio routing still needs further verification with real sound and system permission.
 
-## Сборка и запуск
+## Build and run
 
-Нужны macOS 14.2 или новее и установленный Xcode со Swift. Для сборки используется SDK с поддержкой SwiftUI Liquid Glass (Xcode 26 или новее).
+macOS 14.2 or later and Xcode with Swift are required. Building requires an SDK with SwiftUI Liquid Glass support (Xcode 26 or later).
 
 ```sh
 ./scripts/build-app.sh
 open 'build/Sound Control.app'
 ```
 
-Собранное приложение находится в папке `build` внутри проекта. Автозапуск не включён. Чтобы включить его вручную, добавьте `Sound Control.app` в **System Settings → General → Login Items & Extensions → Open at Login**.
+The built app is located in the `build` directory inside the project. Automatic startup is disabled. To enable it manually, add `Sound Control.app` under **System Settings → General → Login Items & Extensions → Open at Login**.
 
-Иконка-регулятор появится в строке меню. Панель оформлена в тёмном стиле Control Center: на macOS 26+ используются AppKit `NSGlassEffectView` и SwiftUI `glassEffect`, на более ранних версиях — системные материалы. При первом включении обработки macOS может запросить доступ к записи системного звука. Приложение не сохраняет аудио в файлы.
+A dial icon appears in the menu bar. The panel uses a dark Control Center style: on macOS 26 and later it uses AppKit `NSGlassEffectView` and SwiftUI `glassEffect`; on earlier versions it uses system materials. macOS may request permission to record system audio when processing is first enabled. The app does not save audio to files.
 
-Повторное нажатие на значок должно закрывать панель. Открытие и закрытие проверены через действие доступности; физическое нажатие мышью ещё требует проверки.
+Clicking the icon again should close the panel. Opening and closing have been checked using accessibility actions; a physical mouse click still needs verification.
 
-В списке отображаются приложения с активным аудиовыводом по данным Core Audio. Активный поток может содержать тишину; это не измерение слышимой громкости. Helper без подтверждённой связи с приложением показывается отдельно. Для доступных приложений громкость и mute можно изменить в списке; если идентичность процесса не подтверждена, строка показывает «Unavailable». Настройки хранятся только на время работы Sound Control. Их применение после паузы и возобновления ещё требует проверки с реальным звуком.
+The list shows applications with active audio output according to Core Audio. An active stream can contain silence; this is not a measurement of audible volume. A helper whose association with an application cannot be confirmed is shown separately. Volume and mute can be changed for available applications in the list; if a process's identity cannot be verified, its row shows “Unavailable”. Settings are stored only while Sound Control is running. Their application after pausing and resuming still needs verification with real audio.
 
-Выбор устройства изменяет системный выход. Интерфейс на английском, панель ограничена высотой экрана. В обычном режиме прокручивается список приложений; при ошибке сообщение находится над списком, и прокручивается всё содержимое панели. Если обработка не может примениться, интерфейс показывает «Not applied». Некоторые аудиоформаты, конфигурации устройств и приложения, выводящие звук не на системное устройство, могут быть недоступны для обработки. Фактическое отображение последней сборки и fallback на macOS 14.2–15 ещё требуют визуальной проверки.
+Selecting a device changes the system output. The interface is in English, and the panel is limited to the height of the screen. In normal mode, the application list scrolls; when an error is shown, the message appears above the list and the entire panel content scrolls. If processing cannot be applied, the interface shows “Not applied”. Some audio formats, device configurations, and applications that output audio to a device other than the system output may not be available for processing. The appearance of the latest build and the fallback on macOS 14.2–15 still need visual verification.
 
-Сборка подписывается локальной ad-hoc подписью; notarization и распространение не настроены. При проблеме со звуком верните ползунок приложения на 100% или завершите Sound Control.
+The build is signed locally with an ad-hoc signature; notarization and distribution are not configured. If you encounter sound problems, return the application's slider to 100% or quit Sound Control.
 
-## Тесты
+## Tests
 
 ```sh
 swift test
 ```
 
-Интеграционный тест запускает `afplay` с нулевой громкостью и требует работающего аудиовывода macOS. Он проверяет появление и исчезновение процесса в модели, но не измеряет реальный звук и не проверяет регулировку громкости.
+The integration test runs `afplay` at zero volume and requires a working macOS audio output. It checks that the process appears and disappears in the model, but does not measure actual sound or verify volume control.

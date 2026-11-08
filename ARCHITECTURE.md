@@ -1,31 +1,31 @@
-# Архитектура
+# Architecture
 
-Исходное состояние: пустая папка, прежней карты нет. Веха микшера находится на проверке и пользовательской приёмке.
+Initial state: an empty directory, with no previous map. The mixer milestone is under review and awaiting user acceptance.
 
-| Модуль | Ответственность | Зависимости |
+| Module | Responsibility | Dependencies |
 |---|---|---|
-| `SoundControlApp.swift` | AppKit status item, тёмная NSPanel с адаптивной высотой, `NSGlassEffectView` и стеклянные SwiftUI-карточки; системный material на macOS 14.2–15 | AppKit, SwiftUI, `MixerModel` |
-| `MixerModel.swift` | Снимок устройств и приложений, пользовательские уровни, согласование маршрутов и сообщений об ошибках | `AudioDiscovery`, `AudioEngine` |
-| `AudioDiscovery.swift` | Активный вывод process objects, группировка, устройства и системный выход; наблюдение за изменениями | AppKit, Core Audio |
-| `AudioEngine.swift` | Владение process taps и приватными aggregate-устройствами, передача обработанного сигнала на выход и освобождение ресурсов | Core Audio, AudioToolbox |
-| `scripts/build-app.sh`, `Resources/Info.plist` | Локальная сборка и описание `.app` | Swift Package Manager, codesign |
+| `SoundControlApp.swift` | AppKit status item, dark NSPanel with adaptive height, `NSGlassEffectView` and glass SwiftUI cards; system material on macOS 14.2–15 | AppKit, SwiftUI, `MixerModel` |
+| `MixerModel.swift` | Snapshot of devices and applications, user levels, reconciliation of routes and error messages | `AudioDiscovery`, `AudioEngine` |
+| `AudioDiscovery.swift` | Active output of process objects, grouping, devices and system output; observation of changes | AppKit, Core Audio |
+| `AudioEngine.swift` | Ownership of process taps and private aggregate devices, delivery of the processed signal to the output, and resource cleanup | Core Audio, AudioToolbox |
+| `scripts/build-app.sh`, `Resources/Info.plist` | Local build and `.app` description | Swift Package Manager, codesign |
 
-## Контракты и риски
+## Contracts and risks
 
-- Процесс при 100% воспроизводится напрямую; при другом уровне используется tap. Собственный процесс микшера исключается из обнаружения.
-- В UI видны только группы, где хотя бы один процесс имеет активный вывод по `kAudioProcessPropertyIsRunningOutput`; это состояние потока, а не измерение слышимой амплитуды. Для маршрутизации снимок по-прежнему включает и неактивные процессы с выходными устройствами, чтобы их возобновление не исключало их из существующего tap. Объект процесса, исчезнувший во время чтения, пропускается до следующего снимка; другие ошибки не скрываются.
-- Настройки исчезнувшего из списка приложения остаются в модели и применяются, когда его вывод снова станет активным. Задать настройки до первого появления потока нельзя. При смене группы настройки переносятся по PID и времени запуска процесса, если у новой группы нет собственного выбора; явная настройка целевой группы имеет приоритет даже над mute присоединяемого helper. Для непроверенной идентичности перенос не гарантирован. Группировка использует путь к `.app`, а не один лишь bundle ID.
-- Выбор в интерфейсе меняет системное устройство вывода. При смене конфигурации маршруты пересоздаются; пользовательские уровни хранятся только в памяти процесса.
-- Неизменившиеся снимки приложений и устройств повторно не публикуются в SwiftUI; при переносе настроек модель также не публикует неизменившиеся значения. Обнаружение и согласование маршрутов продолжаются по прежнему расписанию.
-- Если аудиодвижок не может применить маршрут, строка показывает «Не применяется». Форматы и раскладки, которые движок не может безопасно обработать, отклоняются.
-- При первом использовании taps macOS запрашивает разрешение на запись системного аудио. Точные последствия отказа в разрешении на этом компьютере не проверены; нельзя считать их проверенными по успешной сборке.
-- Аудиоколбэк должен оставаться real-time-safe. Поддержка реальных устройств, переключение выхода и отказ в разрешении требуют испытаний; мультипоточная маршрутизация запускается не атомарно.
-- При нескольких одновременных ошибках видно только последнее сообщение. Реальная прозрачность и размеры последней сборки, fallback и автоматическое применение к начавшему звучать приложению ещё требуют проверки на устройстве.
+- A process plays directly at 100%; at any other level a tap is used. The mixer's own process is excluded from discovery.
+- The UI shows only groups where at least one process has active output according to `kAudioProcessPropertyIsRunningOutput`; this is a stream state, not a measurement of audible amplitude. For routing, the snapshot still includes inactive processes with output devices so that their resumption does not exclude them from an existing tap. A process object that disappears during reading is skipped until the next snapshot; other errors are not suppressed.
+- Settings for an application that disappears from the list remain in the model and are applied when its output becomes active again. Settings cannot be specified before the stream first appears. When the group changes, settings are transferred using the PID and process start time if the new group has no choice of its own; an explicit setting on the target group takes precedence even over the mute state of a helper joining it. Transfer is not guaranteed when identity has not been verified. Grouping uses the path to the `.app`, not the bundle ID alone.
+- The selection in the interface changes the system output device. Routes are recreated when the configuration changes; user levels are stored only in process memory.
+- Unchanged application and device snapshots are not republished to SwiftUI; when transferring settings, the model also does not publish unchanged values. Discovery and route reconciliation continue on the same schedule as before.
+- If the audio engine cannot apply a route, the row shows “Not applied”. Formats and layouts that the engine cannot process safely are rejected.
+- On first use of taps, macOS requests permission to record system audio. The exact consequences of denying permission on this computer have not been tested; a successful build cannot be taken as verification of those consequences.
+- The audio callback must remain real-time-safe. Real-device support, output switching and permission denial require testing; multistream routing does not start atomically.
+- When several errors occur simultaneously, only the last message is visible. The actual transparency and dimensions of the latest build, fallback, and automatic application to an application that starts playing audio still require on-device verification.
 
-## Структурное сравнение
+## Structural comparison
 
-Вместо пустого каталога появились UI, модель, обнаружение, маршрутизация и сборка. Слои отделяют побочные системные операции от отображения; при этом аудиодвижок и наблюдение за процессами усложнились из-за жизненного цикла Core Audio и обработки разных форматов.
+The empty directory has been replaced by a UI, model, discovery, routing and build. The layers separate system operations with side effects from presentation; however, the audio engine and process observation have become more complex because of the Core Audio lifecycle and the handling of different formats.
 
-При изменении фильтра обязанность discovery расширена признаком активности, модель отделяет видимый список от полного снимка для маршрутов, UI только отображает результат; новые зависимости и дублирующий механизм обнаружения не добавлены. Ревью обнаружило риск маршрутизации только активных процессов; исправленный вариант использует полный снимок. Проверка реальной амплитуды, поведения tap при паузе и переходных ошибок ещё нужна; пользовательская приёмка ожидается.
+With the filter change, discovery's responsibility was extended with an activity indicator, the model separates the visible list from the full snapshot used for routing, and the UI only displays the result; no new dependencies or duplicate discovery mechanism were added. Review found a risk in routing only active processes; the corrected version uses the full snapshot. Actual amplitude, tap behavior during pause, and transient errors still need testing; user acceptance is pending.
 
-При очистке в сравнении с этой картой обязанности и зависимости не изменились. Модель централизует повторявшиеся записи перенесённых уровней и mute и пропускает неизменные значения. Правила переноса и маршруты не изменены; добавлен тест уведомлений, но полный перенос с реальным звуком не проверен. Существенной выгоды от объединения системных аудиопомощников с разными контрактами ошибок не найдено.
+During cleanup, responsibilities and dependencies remained unchanged compared with this map. The model centralizes the repeated writes of transferred levels and mute settings and skips unchanged values. Transfer rules and routes have not changed; a notification test was added, but a complete transfer with real audio has not been tested. No significant benefit was found in combining system audio helpers with different error contracts.

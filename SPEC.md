@@ -1,38 +1,38 @@
 # Sound Control
 
-Класс проекта: долгоживущий нативный проект для macOS.
+Project class: long-lived native macOS project.
 
-## Цель
+## Goal
 
-Управлять громкостью и отключением звука отдельных приложений из строки меню. Позволять выбирать системное устройство вывода. Приложение не устанавливает виртуальный драйвер.
+Control the volume and mute of individual applications from the menu bar. Allow selection of the system output device. The application does not install a virtual driver.
 
-## Критерии готовности
+## Acceptance criteria
 
-- [ ] Приложение собирается и запускается на macOS 14.2 или новее — локальная сборка и запуск `.app`.
-- [ ] В меню отображаются только приложения с активным выводом Core Audio и доступные устройства вывода — проверка запуска, остановки и возобновления воспроизведения.
-- [ ] Уровень или mute сохраняются в памяти при остановке потока и применяются при его возобновлении — проверка переходов от звука к тишине и обратно.
-- [ ] Изменение громкости и mute действуют на выбранное приложение, не меняя громкость остальных — проверка с двумя источниками аудио.
-- [ ] Устройство вывода меняется через системный Core Audio — проверка с несколькими устройствами.
-- [ ] Остановка приложения и ошибки не оставляют звук перехваченного приложения выключенным — проверка остановки и ошибок.
-- [ ] Интерфейс объясняет ошибки и использует системный запрос доступа к аудио — проверка на чистом разрешении.
+- [ ] The application builds and launches on macOS 14.2 or later — local `.app` build and launch.
+- [ ] The menu displays only applications with active Core Audio output and available output devices — verify starting, stopping, and resuming playback.
+- [ ] The level or mute setting is retained in memory when a stream stops and is applied when it resumes — verify transitions from sound to silence and back.
+- [ ] Volume and mute changes affect the selected application without changing the volume of others — verify with two audio sources.
+- [ ] The output device is changed through system Core Audio — verify with multiple devices.
+- [ ] Stopping the application and errors do not leave the intercepted application's sound muted — verify stopping and error scenarios.
+- [ ] The interface explains errors and uses the system audio access prompt — verify with permission in a clean state.
 
-## Не делаем
+## Out of scope
 
-- Автопауза музыки, запись системного звука в файл, виртуальный аудиодрайвер и публикация приложения.
+- Automatic music pausing, recording system audio to a file, a virtual audio driver, and publishing the application.
 
-## Ограничения
+## Constraints
 
-- Swift, SwiftUI и Core Audio; без сторонних зависимостей.
-- Core Audio process taps требуют macOS 14.2+ и разрешения пользователя на захват системного звука.
-- Аудиообработка должна соблюсти ограничения real-time; в аудиоколбэках нельзя блокироваться, выполнять файловый ввод-вывод или выделять память.
+- Swift, SwiftUI, and Core Audio; no third-party dependencies.
+- Core Audio process taps require macOS 14.2+ and user permission to capture system audio.
+- Audio processing must meet real-time constraints; audio callbacks must not block, perform file I/O, or allocate memory.
 
-## Решения
+## Decisions
 
-- Нативное приложение в строке меню — быстрый доступ без отдельного постоянного окна.
-- Process taps вместо драйвера — не нужна установка системного виртуального устройства. Ограничения и поведение маршрутизации проверяются на реальной системе.
-- Выбор устройства меняет системный выход; при необходимости пользователь может вернуть его в системных настройках.
+- A native menu bar application — quick access without a separate permanent window.
+- Process taps instead of a driver — no system virtual device installation is needed. Routing constraints and behavior are verified on a real system.
+- Device selection changes the system output; if necessary, the user can restore it in System Settings.
 
-## Опасные зоны
+## High-risk areas
 
-- `Sources/SoundControl/AudioEngine.swift`: перехват, маршрутизация и освобождение аудио; ошибка может прервать звук.
-- `Sources/SoundControl/AudioDiscovery.swift`: выбор системного устройства вывода влияет на другие приложения.
+- `Sources/SoundControl/AudioEngine.swift`: audio interception, routing, and release; an error can interrupt sound.
+- `Sources/SoundControl/AudioDiscovery.swift`: selecting the system output device affects other applications.

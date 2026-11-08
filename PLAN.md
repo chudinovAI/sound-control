@@ -1,45 +1,45 @@
-# План
+# Plan
 
-## Веха: микшер приложений
+## Milestone: application mixer
 
-Сборка и запуск панели проверены на текущем Mac; отдельный стеклянный контейнер требует повторной визуальной проверки. Тестовый `afplay` найден, при mute macOS запросила разрешение, после подтверждения интерфейс показал «Выкл.», затем 100% после возврата. Реальную амплитуду звука и работу на macOS 14.2 отдельно не проверяли.
-1. Значок-регулятор и AppKit-панель: прозрачный `NSGlassEffectView` на macOS 26+, `NSVisualEffectView` на старых системах. Компактный английский интерфейс шириной 320 pt, адаптивная высота и меню вывода без подсветки собраны; финальное независимое статическое ревью не выявило существенных замечаний. Визуальная проверка новой сборки ожидает перезапуска приложения и доступа к экрану. [частично]
-2. Core Audio discovery и системный выбор выхода — локальный smoke обнаружения процессов и устройств; проверка изменения выхода ещё требуется. [частично]
-3. Process taps, регулировка и восстановление звука — проверены системный запрос и переход UI mute/100% на тестовом источнике; реальный уровень сигнала, два источника, отказ разрешения, смена и отключение устройств не проверены. [частично, руль]
-4. Независимое ревью: review0–review4 выполнены; после разрешения пользователя исправлены замечания review2 и review3. Review4 выявил оставшиеся ограничения в уточнении атрибуции helper-процессов и отображении одновременных ошибок наблюдения. [не завершено, руль]
-5. Структурное ревью: сравнить карту с исходной пустой папкой, отметить сложность и ограничения, обновить ARCHITECTURE.md и представить пользователю для приёмки. [карта записана, приёмка ожидается, руль]
+The panel build and launch have been verified on the current Mac; the separate glass container requires another visual check. A test `afplay` was found, macOS requested permission when mute was applied, and after confirmation the interface indicated that sound was muted, then showed 100% after the level was restored. Actual sound amplitude and operation on macOS 14.2 were not separately tested.
+1. Control icon and AppKit panel: transparent `NSGlassEffectView` on macOS 26+, `NSVisualEffectView` on older systems. A compact English interface 320 pt wide, adaptive height, and an output menu without highlighting have been built; the final independent static review found no significant issues. Visual verification of the new build awaits an application restart and screen access. [partial]
+2. Core Audio discovery and system output selection — local discovery smoke test for processes and devices; verification of output switching is still required. [partial]
+3. Process taps, volume control, and sound restoration — the system prompt and UI transition between mute and 100% were verified with a test source; actual signal level, two sources, permission denial, device switching, and device disconnection were not tested. [partial, high-risk]
+4. Independent review: review0–review4 completed; after user permission, the findings from review2 and review3 were fixed. Review4 identified remaining limitations in refining helper-process attribution and displaying simultaneous observation errors. [incomplete, high-risk]
+5. Structural review: compare the map with the original empty directory, note complexity and limitations, update ARCHITECTURE.md, and present it to the user for acceptance. [map recorded, acceptance pending, high-risk]
 
-## Запущенные приложения и компактная панель
+## Running applications and compact panel
 
-- Удалена шапка; список дополняется запущенными приложениями с обычным интерфейсом и пользовательскими приложениями строки меню. Установленные, но закрытые приложения не выводятся.
-- Громкость и mute приложения без аудиопроцесса сохраняются в памяти до обнаружения процесса. Связь перенастраиваемого helper хранится по PID и времени запуска; явный выбор целевой группы имеет приоритет.
-- Сборка проходит. Smoke обнаружения нашёл все 9 запущенных обычных приложений; проверка Finder без потока подтвердила сохранение 42%, mute и unmute.
-- Предыдущая сборка показала 19 приложений без шапки, но панель оказалась слишком низкой. Расчёт высоты исправлен; визуальная проверка последней сборки ожидает разрешения на управление экраном и перезапуска процесса.
-- Автоматическое применение настройки при начале воспроизведения и перенос mute между группами не проверены на реальном звуке. Маршруты пересоздаются не атомарно.
-- По решению пользователя группировка только по bundle ID удалена; приложения с разными путями не объединяются. Последнее независимое статическое ревью миграции настроек существенных ошибок не выявило; проверка с реальным звуком остаётся.
-- Дизайн переработан под Control Center: тёмная панель и системное стекло для карточек на macOS 26+, светлый текст и ползунки. Новая сборка ожидает визуальной проверки: запрос управления экраном остался без ответа.
-- Повторное нажатие значка обрабатывается как переключение панели; глобальный обработчик внешних кликов исключает область значка. Проверка порядка событий в GUI ожидает перезапуска.
-- Компоновка панели пересчитана с верхним и нижним полем 12 pt; обычный список прокручивается без вложенной области. При ошибке по выбору пользователя сообщение находится над списком, а содержимое панели имеет одну прокрутку; на очень низком экране также используется один общий скролл.
-- Новая сборка проходит. Проверка фактической плавности и отступов ожидает перезапуска: запрос управления экраном остался без ответа.
-- Повторный левый клик по значку при открытой панели перехватывается до действия кнопки. Сборка проходит, независимое статическое ревью замечаний не выявило. После согласованного перезапуска новое приложение открылось и закрылось двумя AXPress по значку; физический клик не проверен, запрос управления экраном остался без ответа.
-- Замер без изменений приложений за 8,2 с: до оптимизации 4 одинаковые публикации приложений и 4 публикации устройств, 8 уведомлений модели; после сравнения snapshots — 0, 0 и 0 соответственно. Сборка проходит; изменение проверено независимым статическим ревью. Плавность прокрутки и загрузка CPU не измерялись; автоматического CI-бюджета нет.
+- The header was removed; the list is supplemented with running applications with a regular interface and user menu bar applications. Installed but closed applications are not displayed.
+- Volume and mute for an application without an audio process are retained in memory until a process is discovered. The association of a reconfigurable helper is stored by PID and start time; an explicit choice for the target group takes precedence.
+- The build passes. A discovery smoke test found all 9 running regular applications; a check of Finder without a stream confirmed retention of 42%, mute, and unmute.
+- The previous build showed 19 applications without a header, but the panel was too short. The height calculation was fixed; visual verification of the latest build awaits permission to control the screen and a process restart.
+- Automatic application of settings when playback starts and transfer of mute between groups have not been tested with real audio. Routes are recreated non-atomically.
+- By user decision, grouping solely by bundle ID was removed; applications with different paths are not combined. The latest independent static review of settings migration found no significant errors; testing with real audio remains outstanding.
+- The design was reworked to match Control Center: a dark panel and system glass for cards on macOS 26+, light text and sliders. The new build awaits visual verification: the screen-control request remained unanswered.
+- A repeated press of the icon is handled as a panel toggle; the global outside-click handler excludes the icon area. Verification of event order in the GUI awaits a restart.
+- The panel layout was recalculated with 12 pt top and bottom margins; the regular list scrolls without a nested area. When an error occurs, the message appears above the list as chosen by the user, and the panel contents have a single scroll area; on a very short screen, a single shared scroll area is also used.
+- The new build passes. Verification of actual smoothness and spacing awaits a restart: the screen-control request remained unanswered.
+- A repeated left click on the icon while the panel is open is intercepted before the button action. The build passes, and an independent static review found no issues. After an agreed restart, the new application opened and closed with two AXPress actions on the icon; a physical click was not tested, and the screen-control request remained unanswered.
+- Measurement with no application changes over 8.2 s: before optimization, 4 identical application publications and 4 device publications, 8 model notifications; after comparing snapshots — 0, 0, and 0 respectively. The build passes; the change was checked by an independent static review. Scrolling smoothness and CPU usage were not measured; there is no automated CI budget.
 
-### Только активный вывод
+### Active output only
 
-- Вместо всех запущенных приложений UI показывает группы с активным output IO; это не измерение слышимого сигнала. Настроить приложение до его первого потока больше нельзя.
-- Для маршрутизации сохраняется полный снимок процессов с output-устройствами, включая неактивные; существующий риск неатомарного пересоздания маршрута остаётся. Исчезнувший при чтении процесс с `kAudioHardwareBadObjectError` пропускается до следующего снимка.
-- Сборка `.app` прошла, интеграционный тест модели с тихим `afplay` подтвердил появление активного процесса и его исчезновение после завершения. Независимое review1 существенных новых замечаний не выявило. Запущенный экземпляр не перезапускался; панель последней сборки, пауза/возобновление, mute, амплитуда и воспроизведение при сбоях ещё не проверены.
-- Структурная карта и изменённый контракт записаны в ARCHITECTURE.md; пользовательская приёмка ожидается.
+- Instead of all running applications, the UI shows groups with active output IO; this is not a measurement of an audible signal. It is no longer possible to configure an application before its first stream.
+- The full snapshot of processes with output devices, including inactive ones, is retained for routing; the existing risk of non-atomic route recreation remains. A process that disappears during reading with `kAudioHardwareBadObjectError` is skipped until the next snapshot.
+- The `.app` build passed, and an integration test of the model with a quiet `afplay` confirmed that an active process appeared and disappeared after completion. Independent review1 found no significant new issues. The running instance was not restarted; the latest build's panel, pause/resume, mute, amplitude, and playback during failures have not yet been tested.
+- The structural map and changed contract are recorded in ARCHITECTURE.md; user acceptance is pending.
 
-### Оставшиеся замечания review4
+### Remaining review4 findings
 
-- При неполной первоначальной атрибуции helper может остаться отдельной строкой вместо группы своего приложения.
-- При одновременных ошибках наблюдения и маршрута интерфейс показывает последнее сообщение, а не все ошибки.
+- With incomplete initial attribution, a helper may remain a separate row instead of joining its application's group.
+- When observation and route errors occur simultaneously, the interface shows the latest message rather than all errors.
 
-### Очистка и подготовка исходников к GitHub
+### Cleanup and source preparation for GitHub
 
-- Аудит не нашёл заведомо мёртвого кода в аудиодвижке; его защитные проверки оставлены. Убраны повторные публикации неизменившихся перенесённых настроек; тест напрямую проверяет запись настроек и уведомления, но не полный перенос и маршруты. Эффект на CPU не измерялся.
-- README исправлен для текущего фильтра; локальные сборочные артефакты остаются исключёнными из Git. Размещение исходников согласовано пользователем отдельно от публикации готового приложения.
-- Аудит отметил потенциальное накопление идентификаторов владельцев процессов и квадратичную сверку слушателей; их влияние не измерено, безопасная очистка требует проверки жизненного цикла и маршрутов.
+- The audit found no demonstrably dead code in the audio engine; its defensive checks were retained. Repeated publications of unchanged transferred settings were removed; the test directly checks settings writes and notifications, but not the full transfer and routes. The effect on CPU was not measured.
+- README was corrected for the current filter; local build artifacts remain excluded from Git. Hosting the source code was approved by the user separately from publishing the finished application.
+- The audit noted potential accumulation of process-owner identifiers and quadratic listener reconciliation; their impact has not been measured, and safe cleanup requires checking lifecycles and routes.
 
-Для реального захвата требуется системное разрешение пользователя. Публикация готового приложения и установка драйвера не входят в задачу.
+Actual capture requires system permission from the user. Publishing the finished application and installing a driver are out of scope.

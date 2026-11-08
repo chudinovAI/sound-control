@@ -1,26 +1,26 @@
-# Ревью и участие владельца
+# Review and owner involvement
 
-## Цель, архитектура и план
+## Goal, architecture, and plan
 
-- Подтвердить назначение микшера и границы функций в SPEC.md.
-- Сверить решение о process taps и отсутствие драйвера с системными ограничениями.
+- Confirm the mixer's purpose and feature boundaries in SPEC.md.
+- Check the decision to use process taps and the absence of a driver against system constraints.
 
-## Вопрос, требующий решения
+## Issue requiring a decision
 
-- Выбрать вариант при существенном изменении контракта, архитектуры или риска. Зафиксировать решение в SPEC.md.
+- Choose an option when there is a substantial change to a contract, architecture, or risk. Record the decision in SPEC.md.
 
-## Изменение в опасной зоне «руль»
+## Change in a high-risk area
 
-- Сверить аудиомаршрутизацию и восстановление звука с SPEC.md.
-- Разобрать замечания независимого reviewer и результаты реальных проверок.
-- Не выдавать установку, системное разрешение или публикацию за согласованные без отдельного поручения.
+- Check audio routing and sound restoration against SPEC.md.
+- Examine the independent reviewer's findings and the results of real-world checks.
+- Do not present installation, system permission, or publication as approved without a separate instruction.
 
-## Структурное ревью вехи
+## Milestone structural review
 
-- Сравнить ARCHITECTURE.md с предыдущим состоянием: обязанности, зависимости, контракты, сложность и дублирование.
-- Рассмотреть известные проблемы и выводы независимого ревью; принять веху после изучения результатов.
+- Compare ARCHITECTURE.md with the previous state: responsibilities, dependencies, contracts, complexity, and duplication.
+- Consider known problems and the findings of the independent review; accept the milestone after examining the results.
 
-## Приёмка релиза
+## Release acceptance
 
-- Проверить критерии SPEC.md и явно отметить непройденные сценарии, включая реальные устройства и разрешение на звук.
-- Публикация или развёртывание требуют отдельного поручения.
+- Check the criteria in SPEC.md and explicitly identify scenarios that have not passed, including real devices and audio permission.
+- Publication or deployment requires a separate instruction.
