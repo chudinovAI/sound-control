@@ -47,4 +47,14 @@ The panel build and launch have been verified on the current Mac; the separate g
 - A recognized `Safari Graphics and Media` WebKit process can be shown as `Safari Audio` with Safari's icon when one Safari path is available. This is a display hint only; it does not merge routes or establish process ownership. Multiple helpers may still appear separately, and settings for a PID-based group do not survive replacement of that process.
 - Unit tests cover the hint and ambiguous or unrelated hosts. A live model-discovery test passed while Safari audio was playing. The user confirmed the rebuilt panel shows `Safari Audio` with the Safari icon and provided the README screenshot; audible volume control and process replacement have not been checked.
 
-Actual capture requires system permission from the user. Publishing the finished application and installing a driver are out of scope.
+### App icon and installation
+
+- The build generates a macOS icon from `Resources/AppIcon.png` and includes it before signing. The bundle is ad-hoc signed and built for the current Mac's architecture; notarization is not configured.
+- The copied bundle stayed running for three seconds when launched from a different directory, and an extracted ZIP passed strict signature verification. `NSWorkspace` returned the new icon for the built app; the actual Finder window, installation in Applications, real audio after relocation, and use on another Mac remain unverified.
+
+### Test release v0.1.0
+
+- The user approved a public pre-release for Apple Silicon. Audio isolation, output switching, permission denial, and recovery have not been fully verified; the release is not a stable or notarized build.
+- The distributable is stripped of debug symbols before signing to avoid exposing build-machine paths. This limits symbol information available for debugging.
+
+Actual capture requires system permission from the user. Installing a driver is out of scope.

@@ -8,7 +8,7 @@ Initial state: an empty directory, with no previous map. The mixer milestone is 
 | `MixerModel.swift` | Snapshot of devices and applications, user levels, reconciliation of routes and error messages | `AudioDiscovery`, `AudioEngine` |
 | `AudioDiscovery.swift` | Active output of process objects, grouping, devices and system output; observation of changes | AppKit, Core Audio |
 | `AudioEngine.swift` | Ownership of process taps and private aggregate devices, delivery of the processed signal to the output, and resource cleanup | Core Audio, AudioToolbox |
-| `scripts/build-app.sh`, `Resources/Info.plist` | Local build and `.app` description | Swift Package Manager, codesign |
+| `scripts/build-app.sh`, `Resources/Info.plist`, `Resources/AppIcon.png` | Local build, `.app` metadata and generated macOS icon | Swift Package Manager, sips, iconutil, strip, codesign |
 
 ## Contracts and risks
 
@@ -32,3 +32,5 @@ With the filter change, discovery's responsibility was extended with an activity
 During cleanup, responsibilities and dependencies remained unchanged compared with this map. The model centralizes the repeated writes of transferred levels and mute settings and skips unchanged values. Transfer rules and routes have not changed; a notification test was added, but a complete transfer with real audio has not been tested. No significant benefit was found in combining system audio helpers with different error contracts.
 
 For the Safari presentation change, discovery additionally selects a best-effort display name and icon for one recognized WebKit helper. `AudioApp.bundleURL` can therefore be an icon source rather than an established owner; it is used by the UI, not by routing. The existing group identity and routing remain unchanged, and no dependency or duplicate discovery pipeline was added. The hint's name and bundle ID checks are repeated before the lookup and within the helper. Ambiguity and process replacement remain limitations; a stronger owner association would require separate investigation.
+
+For the app icon, the build script now derives an `.icns` from one PNG source using macOS tools and includes it before signing. The build also strips debug symbols before signing. Runtime responsibilities and audio contracts are unchanged. This adds image-conversion and stripping steps but no duplicated checked-in icon formats; Finder rendering and use on another Mac remain unverified. The binary retains an Xcode toolchain runpath, although its direct linked libraries use system paths; the effect on a Mac without Xcode has not been tested.

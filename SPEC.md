@@ -18,7 +18,7 @@ Control the volume and mute of individual applications from the menu bar. Allow 
 
 ## Out of scope
 
-- Automatic music pausing, recording system audio to a file, a virtual audio driver, and publishing the application.
+- Automatic music pausing, recording system audio to a file, and a virtual audio driver.
 
 ## Constraints
 
